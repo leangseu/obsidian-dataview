@@ -10,7 +10,7 @@ Functions are another form of [expression](expressions.md) and can be used every
 functionname(parameter1, parameter2)
 ```
 
-Parameters are again [expressions](expressions.md) and you can use literals, meta data fields, or even another function as parameter. You'll find out which [data type](../annotation/types-of-metadata.md) your parameters need to have on the documentation of this page. Pay attention to the information inside the function brackets. Parameters in square brackets, i.e. `link(path, [display])` means they are *optional* and can be omitted. Find out more about the default behaviour of each function on their explanation. 
+Parameters are again [expressions](expressions.md) and you can use literals, meta data fields, or even another function as parameter. You'll find out which [data type](../annotation/types-of-metadata.md) your parameters need to have on the documentation of this page. Pay attention to the information inside the function brackets. Parameters in square brackets, i.e. `link(path, [display])` means they are *optional* and can be omitted. Find out more about the default behavior of each function on their explanation.
 
 ## Calling functions on lists of values
 
@@ -26,7 +26,7 @@ replace("yes", "e", "a") = "yas"
 replace(["yes", "ree"], "e", "a") = ["yas", "raa"]
 ```
 
-This so-called "function vectorization" will not be mentioned explicitly on the following definitions and is possible for a wide range of these functionalities implicitly. 
+This so-called "function vectorization" will not be mentioned explicitly on the following definitions and is possible for a wide range of these functionalities implicitly.
 
 ## Constructors
 
@@ -64,11 +64,11 @@ date([[2021-04-16]]) = <date object for the given page, referring to file.day>
 
 ### `date(text, format)`
 
-Parses a date from text to luxon `DateTime` with the specified format. Note localised formats might not work. 
+Parses a date from text to luxon `DateTime` with the specified format. Note localized formats might not work.
 Uses [Luxon tokens](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
 
 ```js
-date("12/31/2022", "MM/dd/yyyy") => DateTime for Decemeber 31th, 2022
+date("12/31/2022", "MM/dd/yyyy") => DateTime for December 31th, 2022
 date("210313", "yyMMdd") => DateTime for March 13th, 2021
 date("946778645000", "x") => DateTime for "2000-01-02T03:04:05"
 ```
@@ -218,7 +218,7 @@ max("a", "ab", "abc") = "abc"
 
 ### `sum(array)`
 
-Sums all numeric values in the array. If you have null values in your average, you can eliminate them via the `nonnull` function.
+Sums all numeric values in the array. If you have null values in your sum, you can eliminate them via the `nonnull` function.
 
 ```js
 sum([1, 2, 3]) = 6
@@ -244,7 +244,7 @@ A generic function to reduce a list into a single value, valid operands are `"+"
 
 ```js
 reduce([100, 20, 3], "-") = 77
-reduce([200, 10, 2], "/") = 10 
+reduce([200, 10, 2], "/") = 10
 reduce(values, "*") = Multiplies every element of values, same as product(values)
 reduce(values, this.operand) = Applies the local field operand to each of the values
 reduce(["⭐", 3], "*") = "⭐⭐⭐", same as "⭐" * 3
@@ -372,10 +372,10 @@ The outputs are different for different types of input, see examples.
     containsword("word", "word") = true
     containsword("word", "Word") = true
     containsword("words", "Word") = false
-    containsword("Hello there!, "hello") = true
-    containsword("Hello there!, "HeLLo") = true
-    containsword("Hello there chaps!, "chap") = false
-    containsword("Hello there chaps!, "chaps") = true
+    containsword("Hello there!", "hello") = true
+    containsword("Hello there!", "HeLLo") = true
+    containsword("Hello there chaps!", "chap") = false
+    containsword("Hello there chaps!", "chaps") = true
     ```
 
 - For lists, it returns a list of booleans indicating if the word's exact case insensitive match was found.
@@ -430,6 +430,15 @@ Return a new array with all null values removed.
 nonnull([]) = []
 nonnull([null, false]) = [false]
 nonnull([1, 2, 3]) = [1, 2, 3]
+```
+
+### `firstvalue(array)`
+
+Return the first non-null value from the array, as a single element. This can be used to pick the first defined field in the children of a task/list item, like in `firstvalue(children.myField)`.
+
+```js
+firstvalue([null, 1, 2]) => 1
+firstvalue(children.myField) => If children.myField equals [null, null, "myValue", null], it would return "myValue"
 ```
 
 ### `all(array)`
@@ -512,6 +521,14 @@ filter([1, 2, 3], (x) => x >= 2) = [2, 3]
 filter(["yes", "no", "yas"], (x) => startswith(x, "y")) = ["yes", "yas"]
 ```
 
+### `unique(array)`
+
+Creates a new array with only unique values. 
+
+```js
+unique([1, 3, 7, 3, 1]) => [1, 3, 7]
+```
+
 ### `map(array, func)`
 
 Applies the function to each element in the array, returning a list of the mapped results.
@@ -540,7 +557,7 @@ to `end` (`end` not included) where `start` and `end` represents the index of it
 
 ```js
 slice([1, 2, 3, 4, 5], 3) = [4, 5] => All items from given position, 0 as first
-slice(["ant", "bison", "camel", "duck", "elephant"], 0, 2) = ["ant", "bison"] => First two items 
+slice(["ant", "bison", "camel", "duck", "elephant"], 0, 2) = ["ant", "bison"] => First two items
 slice([1, 2, 3, 4, 5], -2) = [4, 5] => counts from the end, last two items
 slice(someArray) => a copy of someArray
 ```
@@ -704,6 +721,23 @@ default(list(1, 2, null), 3) = list(1, 2, 3)
 ldefault(list(1, 2, null), 3) = list(1, 2, null)
 ```
 
+### `display()`
+
+Display function converts the input into a string representation while trying to
+preserve the display property of data types.
+This means that links and urls will be replaced by their display value.
+
+
+```js
+display("Hello World") = "Hello World"
+display("**Hello** World") = "Hello World"
+display("[Hello](https://example.com) [[World]]") = "Hello World"
+display(link("path/to/file.md")) = "file"
+display(link("path/to/file.md", "displayname")) = "displayname"
+display(date("2024-11-18")) = "November 18, 2024"
+display(list("Hello", "World")) = "Hello, World"
+```
+
 ### `choice(bool, left, right)`
 
 A primitive if statement - if the first argument is truthy, returns left; otherwise, returns right.
@@ -717,7 +751,7 @@ choice(x > 4, y, z) = y if x > 4, else z
 ### `hash(seed, [text], [variant])`
 
 Generate a hash based on the `seed`, and the optional extra `text` or a variant `number`. The function
-generates a fixed number based on the combination of these parameters, which can be used to randomise 
+generates a fixed number based on the combination of these parameters, which can be used to randomize
 the sort order of files or lists/tasks. If you choose a `seed` based on a date, i.e. "2024-03-17",
 or another timestamp, i.e. "2024-03-17 19:13", you can make the "randomness" be fixed
 related to that timestamp. `variant` is a number, which in some cases is needed to make the combination of
@@ -728,9 +762,9 @@ hash(dateformat(date(today), "YYYY-MM-DD"), file.name) = ... A unique value for 
 hash(dateformat(date(today), "YYYY-MM-DD"), file.name, position.start.line) = ... A unique "random" value in a TASK query
 ```
 
-This function can be used in a `SORT` statement to randomise the order. If you're using a `TASK` query, 
+This function can be used in a `SORT` statement to randomize the order. If you're using a `TASK` query,
 since the file name could be the same for multiple tasks, you can add some number like the starting line
-number (as shown above) to make it a unique combination. If using something like `FLATTEN file.lists as item`, 
+number (as shown above) to make it a unique combination. If using something like `FLATTEN file.lists as item`,
 the similar addition would be to do `item.position.start.line` as the last parameter.
 
 ### `striptime(date)`

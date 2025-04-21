@@ -11,6 +11,13 @@ describe("filter()", () => {
     test("number list", () => expectEvals("filter(list(1, 2, 3), (k) => k >= 2)", [2, 3]));
 });
 
+describe("unique()", () => {
+    test("empty", () => expectEvals("unique([])", []));
+    test("single", () => expectEvals("unique([1])", [1]));
+    test("multiple unique", () => expectEvals("unique([1, 1, 1])", [1]));
+    test("multiple same", () => expectEvals("unique([1, 3, 7, 3, 1])", [1, 3, 7]));
+});
+
 describe("min()", () => {
     test("empty", () => expectEvals("min()", null));
     test("single", () => expectEvals("min(6)", 6));
@@ -75,4 +82,11 @@ describe("all()", () => {
 describe("nonnull()", () => {
     test("empty", () => expectEvals("nonnull([])", []));
     test("[null, false]", () => expectEvals("nonnull([null, false])", [false]));
+});
+
+describe("firstvalue()", () => {
+    test("empty", () => expectEvals("firstvalue([])", null));
+    test("null", () => expectEvals("firstvalue(null)", null));
+    test("[1, 2, 3]", () => expectEvals("firstvalue([1, 2, 3])", 1));
+    test("[null, 1, 2]", () => expectEvals("firstvalue([null, 1, 2])", 1));
 });

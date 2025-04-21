@@ -104,6 +104,26 @@ describe("sort()", () => {
     });
 });
 
+// <-- display() -->
+
+test("Evaluate display()", () => {
+    expect(parseEval('display("test")')).toEqual("test");
+    expect(parseEval('display("[displayname](http://example.com)")')).toEqual("displayname");
+    expect(parseEval('display("[[test]]")')).toEqual("test");
+    expect(parseEval('display("[[test|displayname]]")')).toEqual("displayname");
+    expect(parseEval('display("long [[test]] **with** [[test2|multiple]] [links](http://example.com)")')).toEqual(
+        "long test with multiple links"
+    );
+    expect(parseEval("display(1)")).toEqual("1");
+    expect(parseEval("display(true)")).toEqual("true");
+    expect(parseEval("display(null)")).toEqual("");
+    expect(parseEval('display(date("2024-11-18"))')).toEqual("November 18, 2024");
+    expect(parseEval('display(dur("7 hours"))')).toEqual("7 hours");
+    expect(parseEval('display(link("path/to/file.md"))')).toEqual("file");
+    expect(parseEval('display(link("path/to/file.md", "displayname"))')).toEqual("displayname");
+    expect(parseEval('display(list("test", 2, link("file.md")))')).toEqual("test, 2, file");
+});
+
 // <-- default() -->
 
 test("Evaluate default()", () => {
@@ -124,7 +144,7 @@ test("Evaluate choose()", () => {
     expect(parseEval("choice(false, 1, 2)")).toEqual(2);
 });
 
-test("Evaulate hash()", () => {
+test("Evaluate hash()", () => {
     expect(DefaultFunctions.hash(simpleContext(), "2024-03-17", "")).toEqual(3259376374957153);
     expect(DefaultFunctions.hash(simpleContext(), "2024-03-17", 2)).toEqual(271608741894590);
     expect(DefaultFunctions.hash(simpleContext(), "2024-03-17", "Home")).toEqual(3041844187830523);

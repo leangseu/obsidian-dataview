@@ -78,7 +78,7 @@ export interface DataArray<T> {
 
     /**
      * Return a sorted array sorted by the given key; an optional comparator can be provided, which will
-     * be used to compare the keys in leiu of the default dataview comparator.
+     * be used to compare the keys in lieu of the default dataview comparator.
      */
     sort<U>(key: ArrayFunc<T, U>, direction?: "asc" | "desc", comparator?: ArrayComparator<U>): DataArray<T>;
 
@@ -115,6 +115,18 @@ export interface DataArray<T> {
 
     /** Run a lambda on each element in the array. */
     forEach(f: ArrayFunc<T, void>): void;
+
+    /** Calculate the sum of the elements in the array. */
+    sum(): number;
+
+    /** Calculate the average of the elements in the array. */
+    avg(): number;
+
+    /** Calculate the minimum of the elements in the array. */
+    min(): number;
+
+    /** Calculate the maximum of the elements in the array. */
+    max(): number;
 
     /** Convert this to a plain javascript array. */
     array(): T[];

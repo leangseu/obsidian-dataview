@@ -38,7 +38,7 @@ export interface DataArray<T> {
     /** Limit the total number of entries in the array to the given value. */
     limit(count: number): DataArray<T>;
     /**
-     * Take a slice of the array. If `start` is undefined, it is assumed to be 0; if `end` is undefined, it is assumbed
+     * Take a slice of the array. If `start` is undefined, it is assumed to be 0; if `end` is undefined, it is assumed
      * to be the end of the array.
      */
     slice(start?: number, end?: number): DataArray<T>;
@@ -62,7 +62,7 @@ export interface DataArray<T> {
 
     /**
      * Return a sorted array sorted by the given key; an optional comparator can be provided, which will
-     * be used to compare the keys in leiu of the default dataview comparator.
+     * be used to compare the keys in lieu of the default dataview comparator.
      */
     sort<U>(key: ArrayFunc<T, U>, direction?: "asc" | "desc", comparator?: ArrayComparator<U>): DataArray<T>;
 
@@ -108,12 +108,24 @@ export interface DataArray<T> {
 
     /**
      * Recursively expand the given key, flattening a tree structure based on the key into a flat array. Useful for handling
-     * heirarchical data like tasks with 'subtasks'.
+     * hierarchical data like tasks with 'subtasks'.
      */
     expand(key: string): DataArray<any>;
 
     /** Run a lambda on each element in the array. */
     forEach(f: ArrayFunc<T, void>): void;
+
+    /** Calculate the sum of the elements in the array. */
+    sum(): number;
+
+    /** Calculate the average of the elements in the array. */
+    avg(): number;
+
+    /** Calculate the minimum of the elements in the array. */
+    min(): number;
+
+    /** Calculate the maximum of the elements in the array. */
+    max(): number;
 
     /** Convert this to a plain javascript array. */
     array(): T[];
@@ -164,10 +176,14 @@ class DataArrayImpl<T> implements DataArray<T> {
         "defaultComparator",
         "toString",
         "settings",
+        "sum",
+        "avg",
+        "min",
+        "max",
     ]);
 
     private static ARRAY_PROXY: ProxyHandler<DataArrayImpl<any>> = {
-        get: function (target, prop, reciever) {
+        get: function (target, prop, receiver) {
             if (typeof prop === "symbol") return (target as any)[prop];
             else if (typeof prop === "number") return target.values[prop];
             else if (prop === "constructor") return target.values.constructor;
@@ -444,6 +460,22 @@ class DataArrayImpl<T> implements DataArray<T> {
         for (let index = 0; index < this.values.length; index++) {
             f(this.values[index], index, this.values);
         }
+    }
+
+    public sum() {
+        return this.values.reduce((a, b) => a + b, 0);
+    }
+
+    public avg() {
+        return this.sum() / this.values.length;
+    }
+
+    public min() {
+        return Math.min(...this.values);
+    }
+
+    public max() {
+        return Math.max(...this.values);
     }
 
     public array(): T[] {

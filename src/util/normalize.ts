@@ -3,6 +3,7 @@ import { Result } from "api/result";
 import * as P from "parsimmon";
 import emojiRegex from "emoji-regex";
 import { QuerySettings } from "settings";
+import removeMd from "remove-markdown";
 
 /** Normalize a duration to all of the proper units. */
 export function normalizeDuration(dur: Duration) {
@@ -71,7 +72,7 @@ export function extractSubtags(tag: string): string[] {
 }
 
 /** Try calling the given function; on failure, return the error message.  */
-export function tryOrPropogate<T>(func: () => Result<T, string>): Result<T, string> {
+export function tryOrPropagate<T>(func: () => Result<T, string>): Result<T, string> {
     try {
         return func();
     } catch (error) {
@@ -80,7 +81,7 @@ export function tryOrPropogate<T>(func: () => Result<T, string>): Result<T, stri
 }
 
 /** Try asynchronously calling the given function; on failure, return the error message. */
-export async function asyncTryOrPropogate<T>(func: () => Promise<Result<T, string>>): Promise<Result<T, string>> {
+export async function asyncTryOrPropagate<T>(func: () => Promise<Result<T, string>>): Promise<Result<T, string>> {
     try {
         return await func();
     } catch (error) {
@@ -158,4 +159,18 @@ export function setsEqual<T>(first: Set<T>, second: Set<T>): boolean {
     for (let elem of first) if (!second.has(elem)) return false;
 
     return true;
+}
+
+/** Normalize a markdown string. Removes all markdown tags and obsidian links. */
+export function normalizeMarkdown(str: string): string {
+    // [[test]] -> test
+    let interim = str.replace(/\[\[([^\|]*?)\]\]/g, "$1");
+
+    // [[test|test]] -> test
+    interim = interim.replace(/\[\[.*?\|(.*?)\]\]/, "$1");
+
+    // remove markdown tags
+    interim = removeMd(interim);
+
+    return interim;
 }

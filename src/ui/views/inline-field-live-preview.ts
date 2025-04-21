@@ -9,7 +9,7 @@ import {
     ViewUpdate,
     WidgetType,
 } from "@codemirror/view";
-import { InlineField, extractInlineFields, parseInlineValue } from "data-import/inline-field";
+import { extractInlineFields, InlineField, parseInlineValue } from "data-import/inline-field";
 import { canonicalizeVarName } from "util/normalize";
 import { renderCompactMarkdown, renderValue } from "ui/render";
 import { DataviewSettings } from "settings";
@@ -58,7 +58,7 @@ function buildInlineFields(state: EditorState): RangeSet<InlineFieldValue> {
 export const inlineFieldsField = StateField.define<RangeSet<InlineFieldValue>>({
     create: buildInlineFields,
     update(oldFields, tr) {
-        return tr.docChanged ? buildInlineFields(tr.state) : oldFields;
+        return buildInlineFields(tr.state);
     },
 });
 
@@ -128,9 +128,7 @@ export const replaceInlineFieldsInLivePreview = (app: App, settings: DataviewSet
                 if (update.docChanged) {
                     this.decorations = this.decorations.map(update.changes);
                     this.updateDecorations(update.view);
-                } else if (update.selectionSet) {
-                    this.updateDecorations(update.view);
-                } else if (update.viewportChanged || layoutChanged) {
+                } else if (update.selectionSet || update.viewportChanged || layoutChanged) {
                     this.decorations = this.buildDecorations(update.view);
                 }
             }
@@ -239,6 +237,10 @@ class InlineFieldWidget extends WidgetType {
 
             const value = renderContainer.createSpan({
                 cls: ["dataview", "inline-field-value"],
+                attr: {
+                    "data-dv-key": this.field.key,
+                    "data-dv-norm-key": canonicalizeVarName(this.field.key),
+                },
             });
             renderValue(
                 this.app,
@@ -258,6 +260,10 @@ class InlineFieldWidget extends WidgetType {
         } else {
             const value = renderContainer.createSpan({
                 cls: ["dataview", "inline-field-standalone-value"],
+                attr: {
+                    "data-dv-key": this.field.key,
+                    "data-dv-norm-key": canonicalizeVarName(this.field.key),
+                },
             });
             renderValue(
                 this.app,
